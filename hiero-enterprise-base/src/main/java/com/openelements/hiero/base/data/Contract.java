@@ -2,7 +2,7 @@ package com.openelements.hiero.base.data;
 
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.ContractId;
-import com.hedera.hashgraph.sdk.PublicKey;
+import com.hedera.hashgraph.sdk.Key;
 import java.time.Instant;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
@@ -11,7 +11,7 @@ import org.jspecify.annotations.Nullable;
 /** Represents a smart contract on the Hiero network. */
 public record Contract(
     @NonNull ContractId contractId,
-    @Nullable PublicKey adminKey,
+    @Nullable Key adminKey,
     @Nullable AccountId autoRenewAccount,
     int autoRenewPeriod,
     @NonNull Instant createdTimestamp,

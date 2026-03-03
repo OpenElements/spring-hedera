@@ -3,6 +3,8 @@ package com.openelements.hiero.spring.implementation;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.ContractId;
+import com.hedera.hashgraph.sdk.DelegateContractId;
+import com.hedera.hashgraph.sdk.Key;
 import com.hedera.hashgraph.sdk.PublicKey;
 import com.hedera.hashgraph.sdk.TokenId;
 import com.hedera.hashgraph.sdk.TokenSupplyType;
@@ -39,6 +41,7 @@ import com.openelements.hiero.base.protocol.data.TransactionType;
 import java.math.BigInteger;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -730,10 +733,21 @@ public class MirrorNodeJsonConverterImpl implements MirrorNodeJsonConverter<Json
 
     try {
       final ContractId contractId = ContractId.fromString(node.get("contract_id").asText());
-      final PublicKey adminKey =
-          node.get("admin_key").isNull()
-              ? null
-              : PublicKey.fromString(node.get("admin_key").get("key").asText());
+      final Key adminKey;
+
+      if (node.get("admin_key").isNull()) {
+        adminKey = null;
+      } else {
+        final String keyType = node.get("admin_key").get("_type").asText();
+        final String key = node.get("admin_key").get("key").asText();
+
+        if (keyType.equals("ProtobufEncoded")) {
+          adminKey = parseProtoBufEncodedKey(key);
+        } else {
+          adminKey = PublicKey.fromString(key);
+        }
+      }
+
       final AccountId autoRenewAccount =
           node.get("auto_renew_account").isNull()
               ? null
@@ -769,9 +783,14 @@ public class MirrorNodeJsonConverterImpl implements MirrorNodeJsonConverter<Json
       final Instant fromTimestamp =
           Instant.ofEpochSecond(node.get("timestamp").get("from").asLong());
       final Instant toTimestamp = Instant.ofEpochSecond(node.get("timestamp").get("to").asLong());
-      final String bytecode = node.get("bytecode").isNull() ? null : node.get("bytecode").asText();
+      final String bytecode =
+          (!node.has("bytecode") || node.get("bytecode").isNull())
+              ? null
+              : node.get("bytecode").asText();
       final String runtimeBytecode =
-          node.get("runtime_bytecode").isNull() ? null : node.get("runtime_bytecode").asText();
+          (!node.has("runtime_bytecode") || node.get("runtime_bytecode").isNull())
+              ? null
+              : node.get("runtime_bytecode").asText();
 
       return Optional.of(
           new Contract(
@@ -831,5 +850,27 @@ public class MirrorNodeJsonConverterImpl implements MirrorNodeJsonConverter<Json
         .filter(optional -> optional.isPresent())
         .map(optional -> optional.get())
         .toList();
+  }
+
+  private @NonNull Key parseProtoBufEncodedKey(@NonNull String key) throws Exception {
+    Objects.requireNonNull(key, "key must not be null");
+    final byte[] bytes = HexFormat.of().parseHex(key);
+    final com.hedera.hashgraph.sdk.proto.Key protoKey =
+        com.hedera.hashgraph.sdk.proto.Key.parseFrom(bytes);
+
+    return switch (protoKey.getKeyCase()) {
+      case ED25519 -> PublicKey.fromBytesED25519(protoKey.getEd25519().toByteArray());
+
+      case ECDSA_SECP256K1 -> PublicKey.fromBytesECDSA(protoKey.getECDSASecp256K1().toByteArray());
+
+      case CONTRACTID -> ContractId.fromBytes(protoKey.getContractID().toByteArray());
+
+      case DELEGATABLE_CONTRACT_ID ->
+          DelegateContractId.fromBytes(protoKey.getDelegatableContractId().toByteArray());
+
+      default ->
+          throw new IllegalArgumentException(
+              "Unsupported protobuf key type: " + protoKey.getKeyCase());
+    };
   }
 }

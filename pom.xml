@@ -44,7 +44,7 @@
     <jspecify.version>1.0.0</jspecify.version>
     <dotenv.version>3.0.0</dotenv.version>
     <junit.version>6.0.1</junit.version>
-    <slf4j.version>2.0.13</slf4j.version>
+    <slf4j.version>2.0.17</slf4j.version>
     <helidon.version>4.1.4</helidon.version>
     <helidon.test.version>3.2.11</helidon.test.version>
     <jakarta.enterprise.version>3.0.1</jakarta.enterprise.version>

@@ -38,7 +38,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <hedera.sdk-version>2.32.0</hedera.sdk-version>
-    <grpc.version>1.58.0</grpc.version>
+    <grpc.version>1.77.0</grpc.version>
     <spring.version>6.1.8</spring.version>
     <spring.boot.version>3.3.0</spring.boot.version>
     <jspecify.version>1.0.0</jspecify.version>
@@ -150,6 +150,11 @@
         <groupId>io.grpc</groupId>
         <artifactId>grpc-protobuf-lite</artifactId>
         <version>${grpc.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.squareup.okio</groupId>
+        <artifactId>okio</artifactId>
+        <version>3.4.0</version>
       </dependency>
       <dependency>
         <groupId>org.jspecify</groupId>

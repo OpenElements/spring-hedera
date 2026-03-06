@@ -24,6 +24,10 @@
       <artifactId>sdk</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.squareup.okio</groupId>
+      <artifactId>okio</artifactId>
+    </dependency>
+    <dependency>
       <groupId>io.github.cdimascio</groupId>
       <artifactId>dotenv-java</artifactId>
       <scope>test</scope>

@@ -24,4 +24,5 @@ module com.openelements.hiero.base {
   requires com.google.protobuf; // TODO: We should not have the need to use it
   requires static org.jspecify;
   requires com.google.auto.service;
+  requires okio;
 }

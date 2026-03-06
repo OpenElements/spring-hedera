@@ -6,6 +6,7 @@ open module com.openelements.hiero.base.test {
   requires org.junit.jupiter.params;
   requires org.mockito;
   requires org.slf4j;
+  requires okio;
 
   provides com.openelements.hiero.base.config.NetworkSettingsProvider with
       com.openelements.hiero.base.test.config.SoloActionNetworkSettingsProvider;
